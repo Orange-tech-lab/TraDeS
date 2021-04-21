@@ -1,3 +1,65 @@
+# Track to Detect and Segment: An Online Multi-Object Tracker (CVPR 2021)をDockerで
+
+前提Docker環境
+- Docker 19.03 以降
+- cuda 10.0 以降
+- nvidia-docker2
+
+以下を参考にインストールすればOK
+
+https://medium.com/nvidiajapan/nvidia-docker-%E3%81%A3%E3%81%A6%E4%BB%8A%E3%81%A9%E3%81%86%E3%81%AA%E3%81%A3%E3%81%A6%E3%82%8B%E3%81%AE-20-09-%E7%89%88-558fae883f44
+
+イメージのビルド時にGPUを使うように
+/etc/docker/daemon.json　に
+
+    "default-runtime": "nvidia", 
+
+を以下のように追加しておく。
+
+    {
+        "default-runtime": "nvidia",
+        "runtimes": {
+            "nvidia": {
+                "path": "nvidia-container-runtime",
+                "runtimeArgs": []
+            }
+        }
+    }
+
+追加後、dockerデーモンを再起動しておく。
+
+    sudo restart docker
+
+リポジトリをとってくる
+
+    git clone https://github.com/Orange-tech-lab/TraDeS.git
+
+イメージをビルド
+
+    cd TraDeS
+    docker build -t trades .
+
+[Googleドライブ](https://drive.google.com/drive/folders/1N0evyyKe1HTc7Pn1lWkkbDC7_fQD7fpW?usp=sharing)からモデルをダウンロードして、以下のように配置する
+
+    TraDeS
+    |-- models
+    `-- |-- coco_seg.pth
+        |-- nuScenes_3Ddetection_e140.pth
+        |-- crowdhuman.pth
+        |-- mot_half.pth
+        `-- nuscenes.pth
+
+必要であれば、inputsフォルダを作って、動画ファイルを置く
+
+コンテナを起動
+
+    docker run --gpus all --rm -it -v$(pwd)/models:/root/TraDeS/models -v$(pwd)/results:/root/TraDeS/results -v$(pwd)/inputs:/root/TraDeS/inputs trades bash
+
+オリジナルのデモがそのまま動くはず。
+結果は、resultsフォルダ下に格納される。
+
+以下、オリジナルドキュメント
+
 # Track to Detect and Segment: An Online Multi-Object Tracker (CVPR 2021)
 
 [comment]: <> (> [**Track to Detect and Segment: An Online Multi-Object Tracker**]&#40;http://arxiv.org/abs/2004.01177&#41;,            )
